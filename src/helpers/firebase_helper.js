@@ -97,4 +97,33 @@ const createAnswer = async (peerConnection, joinCode) => {
   });
 };
 
-export { initFirebase, createOffer, createAnswer };
+const deleteOffer = async (peerConnection, joinCode) => {
+  peerConnection.close();
+
+  if (joinCode) {
+    const firestore = initFirebase();
+    let roomRef = firestore.collection("calls").doc(joinCode);
+    await roomRef
+      .collection("answerCandidates")
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          doc.ref.delete();
+        });
+      });
+    await roomRef
+      .collection("offerCandidates")
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          doc.ref.delete();
+        });
+      });
+
+    await roomRef.delete();
+  }
+
+  window.location.reload();
+};
+
+export { initFirebase, createOffer, createAnswer, deleteOffer };

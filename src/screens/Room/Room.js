@@ -3,18 +3,36 @@ import { useNavigate } from "react-router-dom";
 import {
   createAnswer,
   createOffer,
-  initFirebase,
+  deleteOffer,
 } from "../../helpers/firebase_helper";
 
 import "./room.css";
 
 import { useRTCContext } from "../../context";
 
-const Room = () => {
+const Room = (props) => {
   const navigate = useNavigate();
   const { peerConnection, joinCode, setJoinCode } = useRTCContext();
 
+
   const handleCreateRoom = async () => {
+    const localStream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
+
+    localStream.getTracks().forEach((track) => {
+      peerConnection.addTrack(track, localStream);
+    });
+
+    const remoteStream = new MediaStream();
+
+    peerConnection.ontrack = (event) => {
+      event.streams[0].getTracks().forEach((track) => {
+        remoteStream.addTrack(track);
+      });
+    };
+
     const callerId = await createOffer(peerConnection);
     setJoinCode(callerId);
   };
@@ -36,32 +54,7 @@ const Room = () => {
   };
 
   const hangUp = async () => {
-    peerConnection.close();
-
-    if (joinCode) {
-      const firestore = initFirebase();
-      let roomRef = firestore.collection("calls").doc(joinCode);
-      await roomRef
-        .collection("answerCandidates")
-        .get()
-        .then((querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-            doc.ref.delete();
-          });
-        });
-      await roomRef
-        .collection("offerCandidates")
-        .get()
-        .then((querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-            doc.ref.delete();
-          });
-        });
-
-      await roomRef.delete();
-    }
-
-    window.location.reload();
+    deleteOffer(peerConnection, joinCode);
   };
 
   return (
