@@ -1,19 +1,15 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
-  checkIfUserExists,
-  createAnswer,
-  createOffer,
   deleteOffer,
 } from "../../helpers/firebase_helper";
 
 import "./room.css";
 
+import { RoomConstants } from "../../constants";
 import { useRTCContext } from "../../context";
 
 const Room = (props) => {
-  const navigate = useNavigate();
-  const { peerConnection, joinCode, setJoinCode } = useRTCContext();
+  const { peerConnection, joinCode, setJoinCode, setCurrentRoomState } = useRTCContext();
 
 
   const handleCreateRoom = async () => {
@@ -33,10 +29,7 @@ const Room = (props) => {
         remoteStream.addTrack(track);
       });
     };
-
-    const callerId = await createOffer(peerConnection);
-    navigate(`/${callerId}`, { replace: true });
-    setJoinCode(callerId);
+    setCurrentRoomState(RoomConstants.CREATE_ROOM)
   };
 
   const handleJoinRoom = async () => {
@@ -45,20 +38,13 @@ const Room = (props) => {
       return;
     }
 
-    const userExist = await checkIfUserExists(joinCode)
+    peerConnection.onconnectionstatechange = (event) => {
+      if (peerConnection.connectionState === "disconnected") {
+        hangUp();
+      }
+    };
 
-    if (!userExist) {
-      alert("Please enter a valid roomId!");
-    } else {
-      createAnswer(peerConnection, joinCode);
-
-      peerConnection.onconnectionstatechange = (event) => {
-        if (peerConnection.connectionState === "disconnected") {
-          hangUp();
-        }
-      };
-      navigate(`/${joinCode}`, { replace: true });
-    }
+    setCurrentRoomState(RoomConstants.JOIN_ROOM)
   };
 
   const hangUp = async () => {

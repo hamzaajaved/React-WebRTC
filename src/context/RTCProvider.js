@@ -5,6 +5,7 @@ import servers from "../data/servers";
 const RTCProvider = ({ children }) => {
   const peerConnection = new RTCPeerConnection(servers);
   const [joinCode, setJoinCode] = useState("");
+  const [currentRoomState, setCurrentRoomState] = useState("")
 
   return (
     <RTCContext.Provider
@@ -12,6 +13,8 @@ const RTCProvider = ({ children }) => {
         peerConnection,
         joinCode,
         setJoinCode,
+        currentRoomState,
+        setCurrentRoomState
       }}
     >
       {children}

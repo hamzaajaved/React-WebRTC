@@ -14,15 +14,12 @@ const firebaseConfig = {
   measurementId: "G-WE1RXEGFG1",
 };
 
-const initFirebase = () => {
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-  return firebase.firestore();
-};
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+const firestore = firebase.firestore();
 
 const createOffer = async (peerConnection) => {
-  const firestore = initFirebase();
   const callDoc = firestore.collection("calls").doc();
   const offerCandidates = callDoc.collection("offerCandidates");
   const answerCandidates = callDoc.collection("answerCandidates");
@@ -68,7 +65,6 @@ const checkIfUserExists = async (joinCode) => {
 }
 
 const createAnswer = async (peerConnection, joinCode) => {
-  const firestore = initFirebase();
   const callDoc = firestore.collection("calls").doc(joinCode);
   const answerCandidates = callDoc.collection("answerCandidates");
   const offerCandidates = callDoc.collection("offerCandidates");
@@ -108,7 +104,6 @@ const deleteOffer = async (peerConnection, joinCode) => {
   peerConnection.close();
 
   if (joinCode) {
-    const firestore = initFirebase();
     let roomRef = firestore.collection("calls").doc(joinCode);
     await roomRef
       .collection("answerCandidates")
@@ -132,4 +127,4 @@ const deleteOffer = async (peerConnection, joinCode) => {
   window.location.replace("/")
 };
 
-export { initFirebase, createOffer, createAnswer, deleteOffer, checkIfUserExists };
+export { createOffer, createAnswer, deleteOffer, checkIfUserExists };

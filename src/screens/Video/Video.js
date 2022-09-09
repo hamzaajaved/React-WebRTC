@@ -1,18 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
 
 import { ReactComponent as HangupIcon } from "../../assets/icons/hangup.svg";
-import { ReactComponent as MoreIcon } from "../../assets/icons/more-vertical.svg";
-import { ReactComponent as CopyIcon } from "../../assets/icons/copy.svg";
 
 import "./video.css";
 
+import { RoomConstants } from "../../constants";
 import { useRTCContext } from "../../context";
-import { deleteOffer } from "../../helpers/firebase_helper";
+import { createAnswer, createOffer, deleteOffer } from "../../helpers/firebase_helper";
 
 const Video = (props) => {
-  const { roomId } = useParams();
-  const { peerConnection, joinCode } = useRTCContext();
+  const { peerConnection, joinCode, setJoinCode, currentRoomState } = useRTCContext();
   const [webcamActive, setWebcamActive] = useState(false);
   const localStreamRef = useRef(null);
   const remoteStreamRef = useRef(null);
@@ -40,6 +37,17 @@ const Video = (props) => {
       remoteStreamRef.current.srcObject = remoteStream;
 
       setWebcamActive(true);
+
+      if (currentRoomState === RoomConstants.CREATE_ROOM) {
+        const callerId = await createOffer(peerConnection);
+        console.log("🚀 ~ file: Video.js ~ line 47 ~ init ~ callerId", callerId)
+        setJoinCode(callerId);
+      }
+
+      if (currentRoomState === RoomConstants.JOIN_ROOM) {
+        createAnswer(peerConnection, joinCode);
+      }
+
     };
 
     init();
@@ -58,7 +66,7 @@ const Video = (props) => {
       <video
         ref={localStreamRef}
         autoPlay
-        playsInline 
+        playsInline
         className="local"
         controls={false}
         muted
