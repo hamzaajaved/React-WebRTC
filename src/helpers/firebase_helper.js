@@ -4,6 +4,7 @@ import "firebase/auth";
 import "firebase/firestore";
 
 const firebaseConfig = {
+  // FIREBASE CONFIG HERE
   apiKey: "AIzaSyD0yaydjIL4b9WniGSt6H8J9Z1zjDrp3Ic",
   authDomain: "videochat-9c65d.firebaseapp.com",
   projectId: "videochat-9c65d",
@@ -59,6 +60,12 @@ const createOffer = async (peerConnection) => {
 
   return callDoc.id;
 };
+
+const checkIfUserExists = async (joinCode) => {
+
+  // TODO: Implement checkIfUserExists
+  return true;
+}
 
 const createAnswer = async (peerConnection, joinCode) => {
   const firestore = initFirebase();
@@ -122,8 +129,7 @@ const deleteOffer = async (peerConnection, joinCode) => {
 
     await roomRef.delete();
   }
-
-  window.location.reload();
+  window.location.replace("/")
 };
 
-export { initFirebase, createOffer, createAnswer, deleteOffer };
+export { initFirebase, createOffer, createAnswer, deleteOffer, checkIfUserExists };

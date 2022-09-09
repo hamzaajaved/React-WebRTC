@@ -7,14 +7,17 @@
     height: 210px;
     border-radius: 8px;
     z-index: 10;
+    background-color: #fff;
 }
 
 .videos .remote {
+    width: 100%;
+    height: 100%;
     position: absolute;
     top: 0;
     left: 0;
-    bottom: 0;
-    right: 0;
+    resize: horizontal;
+    object-fit: cover;
 }
 
 .videos .buttonsContainer {
@@ -50,6 +53,18 @@
 .videos .buttonsContainer .hangup:hover {
     cursor: pointer;
     background-color: #f87a63;
+}
+
+.videos .buttonsContainer .camera {
+    background-color: #000;
+}
+.videos .buttonsContainer .camera:hover {
+    cursor: pointer;
+}
+
+.videos .buttonsContainer .camera .camera-img {
+    width: 30px;
+    height: 30px;
 }
 
 .videos .buttonsContainer .more {

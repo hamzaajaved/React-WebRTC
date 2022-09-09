@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  checkIfUserExists,
   createAnswer,
   createOffer,
   deleteOffer,
@@ -34,6 +35,7 @@ const Room = (props) => {
     };
 
     const callerId = await createOffer(peerConnection);
+    navigate(`/${callerId}`, { replace: true });
     setJoinCode(callerId);
   };
 
@@ -43,14 +45,20 @@ const Room = (props) => {
       return;
     }
 
-    createAnswer(peerConnection, joinCode);
+    const userExist = await checkIfUserExists(joinCode)
 
-    peerConnection.onconnectionstatechange = (event) => {
-      if (peerConnection.connectionState === "disconnected") {
-        hangUp();
-      }
-    };
-    navigate(`/${joinCode}`, { replace: true });
+    if (!userExist) {
+      alert("Please enter a valid roomId!");
+    } else {
+      createAnswer(peerConnection, joinCode);
+
+      peerConnection.onconnectionstatechange = (event) => {
+        if (peerConnection.connectionState === "disconnected") {
+          hangUp();
+        }
+      };
+      navigate(`/${joinCode}`, { replace: true });
+    }
   };
 
   const hangUp = async () => {

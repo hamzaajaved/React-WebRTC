@@ -36,8 +36,8 @@ const Video = (props) => {
         });
       };
 
-      localStreamRef.current = localStream;
-      remoteStreamRef.current = remoteStream;
+      localStreamRef.current.srcObject = localStream;
+      remoteStreamRef.current.srcObject = remoteStream;
 
       setWebcamActive(true);
     };
@@ -49,16 +49,21 @@ const Video = (props) => {
     deleteOffer(peerConnection, joinCode);
   };
 
+  const handleCameraDisable = async () => {
+    localStreamRef.current.srcObject.getTracks().forEach(track => track.stop())
+  }
+
   return (
     <div className="videos">
       <video
         ref={localStreamRef}
         autoPlay
-        playsInline
+        playsInline 
         className="local"
+        controls={false}
         muted
       />
-      <video ref={remoteStreamRef} autoPlay playsInline className="remote" />
+      <video ref={remoteStreamRef} autoPlay playsInline controls={false} className="remote" />
 
       <div className="buttonsContainer">
         <button
@@ -68,18 +73,16 @@ const Video = (props) => {
         >
           <HangupIcon />
         </button>
-        <div tabIndex={0} role="button" className="more button">
-          <MoreIcon />
-          <div className="popover">
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(roomId);
-              }}
-            >
-              <CopyIcon /> Copy joining code
-            </button>
-          </div>
-        </div>
+
+        <button
+          onClick={handleCameraDisable}
+          disabled={!webcamActive}
+          className="camera button"
+
+        >
+          <img className="camera-img" src={require("../../assets/icons/camera.png")} />
+        </button>
+
       </div>
     </div>
   );
